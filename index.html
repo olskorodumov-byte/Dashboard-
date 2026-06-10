@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Дашборд · Заказы</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+  --bg:      #0d0f14;
+  --surf:    #161a23;
+  --surf2:   #1c2130;
+  --border:  #242836;
+  --accent:  #4f8ef7;
+  --green:   #34d17a;
+  --red:     #f75959;
+  --amber:   #f7c048;
+  --purple:  #a78bfa;
+  --text:    #e8eaf0;
+  --muted:   #6b7280;
+  --mono:    'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+  padding-bottom: 60px;
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(13,15,20,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.topbar-logo {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text);
+}
+.topbar-logo span { color: var(--accent); }
+.live-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(52,209,122,0.12);
+  border: 1px solid rgba(52,209,122,0.25);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--green);
+  font-family: var(--mono);
+}
+.live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: blink 2s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+.topbar-time {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* ── CONTENT ── */
+.content {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px 16px 0;
+}
+
+/* ── SECTION TITLE ── */
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+  padding-left: 2px;
+}
+
+/* ── KPI GRID ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 28px;
+}
+.kpi {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px 14px 14px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.kpi:hover { border-color: #353d52; }
+.kpi-accent-line {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  border-radius: 16px 16px 0 0;
+}
+.kpi-emoji {
+  font-size: 20px;
+  margin-bottom: 10px;
+  display: block;
+}
+.kpi-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.kpi-value {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1;
+  letter-spacing: -0.5px;
+}
+.kpi-value.sm { font-size: 16px; }
+.kpi-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 16px;
+  margin-bottom: 14px;
+}
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.card-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.card-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--surf2);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+/* ── FINANCE GRID ── */
+.fin-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.fin-item {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 10px 8px;
+}
+.fin-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 5px;
+  line-height: 1.3;
+  min-height: 24px;
+  display: flex;
+  align-items: flex-end;
+}
+.fin-value {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+}
+.c-green  { color: var(--green); }
+.c-red    { color: var(--red); }
+.c-accent { color: var(--accent); }
+.c-amber  { color: var(--amber); }
+.c-purple { color: var(--purple); }
+.c-text   { color: var(--text); }
+
+/* ── PROGRESS ── */
+.prog-row { margin-bottom: 13px; }
+.prog-row:last-child { margin-bottom: 0; }
+.prog-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+  gap: 6px;
+}
+.prog-name {
+  font-size: 12px;
+  color: var(--text);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.prog-nums {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.prog-track {
+  height: 5px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.prog-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1.2s cubic-bezier(.16,1,.3,1);
+  width: 0;
+}
+
+/* ── STAGE LIST ── */
+.stage-list { display: flex; flex-direction: column; gap: 8px; }
+.stage-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  transition: border-color .2s;
+}
+.stage-row:hover { border-color: #353d52; }
+.stage-left { display: flex; align-items: center; gap: 10px; }
+.stage-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.stage-name { font-size: 13px; }
+.stage-right { display: flex; align-items: center; gap: 8px; }
+.stage-count {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 20px;
+}
+.stage-sum {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* ── ORDERS TABLE ── */
+.order-list { display: flex; flex-direction: column; gap: 8px; }
+.order-item {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 11px 12px;
+  transition: border-color .2s;
+}
+.order-item:hover { border-color: #353d52; }
+.order-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.order-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  min-width: 28px;
+}
+.order-client {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.order-city {
+  font-size: 11px;
+  color: var(--muted);
+}
+.stage-chip {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.order-bottom {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+.order-stat {
+  background: var(--surf);
+  border-radius: 7px;
+  padding: 5px 7px;
+}
+.order-stat-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+.order-stat-val {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ── DEADLINE WIDGET ── */
+.deadline-list { display: flex; flex-direction: column; gap: 8px; }
+.deadline-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  gap: 8px;
+}
+.deadline-info { flex: 1; }
+.deadline-name { font-size: 12px; color: var(--text); margin-bottom: 2px; }
+.deadline-date { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.deadline-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+/* ── EMPTY ── */
+.empty {
+  text-align: center;
+  padding: 20px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* ── DEMO BANNER ── */
+.demo-banner {
+  background: rgba(247,192,72,0.08);
+  border: 1px solid rgba(247,192,72,0.2);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.demo-banner-icon { font-size: 18px; flex-shrink: 0; }
+.demo-banner-text { font-size: 12px; color: var(--amber); line-height: 1.6; }
+.demo-banner-text strong { font-weight: 600; }
+
+/* ── FOOTER ── */
+.footer {
+  text-align: center;
+  padding: 32px 20px 0;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: #3a4058;
+  letter-spacing: 0.5px;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 380px) {
+  .kpi-value { font-size: 18px; }
+  .kpi-value.sm { font-size: 14px; }
+  .fin-grid { grid-template-columns: repeat(2, 1fr); }
+  .order-bottom { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 600px) {
+  .kpi-grid { grid-template-columns: repeat(4, 1fr); }
+  .content { padding: 28px 24px 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">Order<span>Board</span></div>
+    <div class="live-badge"><div class="live-dot"></div><span id="live-label">DEMO</span></div>
+  </div>
+  <div class="topbar-time" id="topbar-time">—</div>
+</div>
+
+<div class="content">
+
+  <div id="demo-banner" class="demo-banner" style="display:none">
+    <div class="demo-banner-icon">⚠️</div>
+    <div class="demo-banner-text">
+      <strong>Режим демо-данных.</strong> Откройте страницу через кнопку в Memento Database — тогда здесь появятся ваши реальные заказы.
+    </div>
+  </div>
+
+  <!-- KPI -->
+  <div class="section-label">Обзор</div>
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-accent-line" style="background:var(--accent)"></div>
+      <span class="kpi-emoji">🗂</span>
+      <div class="kpi-label">В работе</div>
+      <div class="kpi-value" id="kpi-active">—</div>
+      <div class="kpi-sub" id="kpi-active-sub">заказов</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-accent-line" style="background:var(--green)"></div>
+      <span class="kpi-emoji">💰</span>
+      <div class="kpi-label">Оплачено</div>
+      <div class="kpi-value sm" id="kpi-paid">—</div>
+      <div class="kpi-sub" id="kpi-paid-sub">% от суммы</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-accent-line" style="background:var(--red)"></div>
+      <span class="kpi-emoji">📤</span>
+      <div class="kpi-label">Расходы</div>
+      <div class="kpi-value sm" id="kpi-spent">—</div>
+      <div class="kpi-sub" id="kpi-spent-sub">всего</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-accent-line" style="background:var(--purple)"></div>
+      <span class="kpi-emoji">📈</span>
+      <div class="kpi-label">Маржа</div>
+      <div class="kpi-value sm" id="kpi-margin">—</div>
+      <div class="kpi-sub" id="kpi-margin-sub">оплата − расходы</div>
+    </div>
+  </div>
+
+  <!-- ФИНАНСОВАЯ СВОДКА -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">Финансовая сводка</div>
+    </div>
+    <div class="fin-grid">
+      <div class="fin-item">
+        <div class="fin-label">Сумма заказов</div>
+        <div class="fin-value c-text" id="fin-total">—</div>
+      </div>
+      <div class="fin-item">
+        <div class="fin-label">Всего оплачено</div>
+        <div class="fin-value c-green" id="fin-paid">—</div>
+      </div>
+      <div class="fin-item">
+        <div class="fin-label">Осталось получить</div>
+        <div class="fin-value c-accent" id="fin-remain">—</div>
+      </div>
+      <div class="fin-item">
+        <div class="fin-label">Всего расходов</div>
+        <div class="fin-value c-red" id="fin-expenses">—</div>
+      </div>
+      <div class="fin-item">
+        <div class="fin-label">Всего списано</div>
+        <div class="fin-value c-amber" id="fin-written">—</div>
+      </div>
+      <div class="fin-item">
+        <div class="fin-label">Чистая маржа</div>
+        <div class="fin-value" id="fin-margin-net">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ПРОГРЕСС ОПЛАТЫ -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">Прогресс оплаты</div>
+      <div class="card-badge" id="badge-progress">активные</div>
+    </div>
+    <div id="progress-list"></div>
+  </div>
+
+  <!-- ПО ЭТАПАМ -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">По этапам</div>
+      <div class="card-badge" id="badge-stages">—</div>
+    </div>
+    <div class="stage-list" id="stage-list"></div>
+  </div>
+
+  <!-- ДЕДЛАЙНЫ -->
+  <div class="card" id="card-deadlines" style="display:none">
+    <div class="card-head">
+      <div class="card-title">⏰ Дедлайны — 7 дней</div>
+      <div class="card-badge c-amber" id="badge-deadlines">—</div>
+    </div>
+    <div class="deadline-list" id="deadline-list"></div>
+  </div>
+
+  <!-- СПИСОК ЗАКАЗОВ -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">Активные заказы</div>
+      <div class="card-badge" id="badge-orders">—</div>
+    </div>
+    <div class="order-list" id="order-list"></div>
+  </div>
+
+</div><!-- /content -->
+
+<div class="footer" id="footer">сформировано —</div>
+
+<script>
+// ─── UTILS ───────────────────────────────────
+
+const fmt = (v, short) => {
+  if (v === null || v === undefined || v === '') return '—';
+  const n = +v;
+  if (isNaN(n)) return '—';
+  if (short && Math.abs(n) >= 1000) {
+    return '₪' + (n/1000).toLocaleString('ru-RU',{maximumFractionDigits:1}) + 'k';
+  }
+  return '₪\u202F' + n.toLocaleString('ru-RU', {maximumFractionDigits:0});
+};
+
+const pct = (a, b) => (b > 0 ? Math.min(100, Math.round(a / b * 100)) : 0);
+
+const stageInfo = s => {
+  if (!s) return { color:'#4f8ef7', bg:'rgba(79,142,247,.15)', cls:'c-accent' };
+  const t = s.trim();
+  if (t.includes('Производство')) return { color:'#34d17a', bg:'rgba(52,209,122,.15)', cls:'c-green' };
+  if (t.includes('Установка'))    return { color:'#f7c048', bg:'rgba(247,192,72,.15)',  cls:'c-amber' };
+  if (t.includes('Закрыт'))       return { color:'#3b4260', bg:'rgba(59,66,96,.4)',     cls:'c-text'  };
+  return { color:'#4f8ef7', bg:'rgba(79,142,247,.15)', cls:'c-accent' };
+};
+
+const parseDate = s => {
+  if (!s) return null;
+  const m = String(s).match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+  if (m) return new Date(+m[3], +m[2]-1, +m[1]);
+  const d = new Date(s);
+  return isNaN(d) ? null : d;
+};
+
+const daysUntil = d => {
+  const diff = d - new Date().setHours(0,0,0,0);
+  return Math.round(diff / 86400000);
+};
+
+// ─── PARSE URL DATA ───────────────────────────
+
+function getPayload() {
+  const params = new URLSearchParams(window.location.search);
+  const raw = params.get('data');
+  if (!raw) return null;
+  try { return JSON.parse(decodeURIComponent(raw)); }
+  catch(e) { return null; }
+}
+
+// ─── DEMO DATA ────────────────────────────────
+
+function demoPayload() {
+  return {
+    ts: new Date().toISOString(),
+    orders: [
+      { num:51, client:'Иванова Марина',  city:'Тель-Авив', stage:'Производство ', sum:28500, paid:14000, spent:9200,  written:0,   deadline:'20.06.2026' },
+      { num:50, client:'Коэн Давид',      city:'Хайфа',     stage:'Производство ', sum:18000, paid:18000, spent:7100,  written:500, deadline:'18.06.2026' },
+      { num:49, client:'Петров Алекс',    city:'Беэр-Шева', stage:'Установка ',   sum:32000, paid:24000, spent:14000, written:0,   deadline:'15.06.2026' },
+      { num:48, client:'Леви Рут',        city:'Нетания',   stage:'Новый проект', sum:15500, paid:5000,  spent:0,     written:0,   deadline:'' },
+      { num:47, client:'Смирнов Игорь',   city:'Ришон',     stage:'Установка ',   sum:22000, paid:16000, spent:8200,  written:800, deadline:'22.06.2026' },
+      { num:46, client:'Абрамов Борис',   city:'Иерусалим', stage:'Закрыт',       sum:19000, paid:19000, spent:8500,  written:1200,deadline:'' },
+      { num:45, client:'Кац Наталья',     city:'Ашдод',     stage:'Новый проект', sum:12000, paid:6000,  spent:0,     written:0,   deadline:'' },
+    ]
+  };
+}
+
+// ─── RENDER ───────────────────────────────────
+
+function render(payload, isDemo) {
+  const orders = payload.orders || [];
+
+  // timestamp
+  const ts = payload.ts ? new Date(payload.ts) : new Date();
+  const tsStr = ts.toLocaleString('ru-RU', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  document.getElementById('topbar-time').textContent = tsStr;
+  document.getElementById('footer').textContent = 'сформировано ' + tsStr + (isDemo ? ' · DEMO' : '');
+
+  if (isDemo) {
+    document.getElementById('demo-banner').style.display = 'flex';
+    document.getElementById('live-label').textContent = 'DEMO';
+  } else {
+    document.getElementById('live-label').textContent = 'LIVE';
+  }
+
+  // ── aggregates ──
+  const active  = orders.filter(o => !String(o.stage||'').includes('Закрыт'));
+  const closed  = orders.filter(o =>  String(o.stage||'').includes('Закрыт'));
+
+  const sum     = v => orders.reduce((a,o) => a + (+o[v]||0), 0);
+  const sumAct  = v => active.reduce((a,o) => a + (+o[v]||0), 0);
+
+  const totalSum     = sum('sum');
+  const totalPaid    = sum('paid');
+  const totalSpent   = sum('spent');
+  const totalWritten = sum('written');
+  const totalRemain  = totalSum - totalPaid;
+  const totalMargin  = totalPaid - totalSpent - totalWritten;
+
+  // ── KPI ──
+  document.getElementById('kpi-active').textContent   = active.length;
+  document.getElementById('kpi-active-sub').textContent = `из ${orders.length} всего`;
+  document.getElementById('kpi-paid').textContent       = fmt(totalPaid, true);
+  document.getElementById('kpi-paid-sub').textContent   = `${pct(totalPaid,totalSum)}% от суммы`;
+  document.getElementById('kpi-spent').textContent      = fmt(totalSpent, true);
+  document.getElementById('kpi-spent-sub').textContent  = `+ списано ${fmt(totalWritten,true)}`;
+
+  const mEl = document.getElementById('kpi-margin');
+  mEl.textContent = fmt(totalMargin, true);
+  mEl.className = 'kpi-value sm ' + (totalMargin >= 0 ? 'c-green' : 'c-red');
+
+  // ── Finance summary ──
+  document.getElementById('fin-total').textContent    = fmt(totalSum);
+  document.getElementById('fin-paid').textContent     = fmt(totalPaid);
+  document.getElementById('fin-remain').textContent   = fmt(totalRemain);
+  document.getElementById('fin-expenses').textContent = fmt(totalSpent);
+  document.getElementById('fin-written').textContent  = fmt(totalWritten);
+  const fmn = document.getElementById('fin-margin-net');
+  fmn.textContent = fmt(totalMargin);
+  fmn.className = 'fin-value ' + (totalMargin >= 0 ? 'c-green' : 'c-red');
+
+  // ── Progress bars ──
+  const progEl = document.getElementById('progress-list');
+  const progOrders = active.sort((a,b) => (+b.sum||0) - (+a.sum||0)).slice(0, 8);
+  document.getElementById('badge-progress').textContent = progOrders.length + ' заказов';
+  if (progOrders.length === 0) {
+    progEl.innerHTML = '<div class="empty">Нет активных заказов</div>';
+  } else {
+    progEl.innerHTML = progOrders.map(o => {
+      const s = +o.sum||0, p = +o.paid||0;
+      const pp = pct(p, s);
+      const color = pp >= 100 ? 'var(--green)' : pp >= 50 ? 'var(--accent)' : 'var(--amber)';
+      return `
+      <div class="prog-row">
+        <div class="prog-meta">
+          <div class="prog-name">№${o.num} ${o.client||''}</div>
+          <div class="prog-nums">${fmt(p,true)} / ${fmt(s,true)} · ${pp}%</div>
+        </div>
+        <div class="prog-track">
+          <div class="prog-fill" data-w="${pp}" style="background:${color}"></div>
+        </div>
+      </div>`;
+    }).join('');
+    // animate
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.prog-fill').forEach(el => {
+        el.style.width = el.dataset.w + '%';
+      });
+    });
+  }
+
+  // ── Stages ──
+  const stageCounts = {}, stageSums = {};
+  orders.forEach(o => {
+    const s = String(o.stage||'Новый проект').trim();
+    stageCounts[s] = (stageCounts[s]||0) + 1;
+    stageSums[s]   = (stageSums[s]||0) + (+o.sum||0);
+  });
+  const stageOrder = ['Новый проект','Производство','Установка','Закрыт'];
+  const sortedStages = Object.keys(stageCounts).sort((a,b) => {
+    const ai = stageOrder.findIndex(x => a.includes(x));
+    const bi = stageOrder.findIndex(x => b.includes(x));
+    return (ai<0?99:ai) - (bi<0?99:bi);
+  });
+  document.getElementById('badge-stages').textContent = orders.length + ' заказов';
+  document.getElementById('stage-list').innerHTML = sortedStages.map(s => {
+    const info = stageInfo(s);
+    return `
+    <div class="stage-row">
+      <div class="stage-left">
+        <div class="stage-dot" style="background:${info.color}"></div>
+        <div class="stage-name">${s}</div>
+      </div>
+      <div class="stage-right">
+        <div class="stage-sum">${fmt(stageSums[s],true)}</div>
+        <span class="stage-count" style="background:${info.bg};color:${info.color}">${stageCounts[s]}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  // ── Deadlines ──
+  const now = new Date().setHours(0,0,0,0);
+  const upcoming = active
+    .map(o => ({ ...o, _d: parseDate(o.deadline) }))
+    .filter(o => o._d && o._d.getTime() >= now)
+    .sort((a,b) => a._d - b._d)
+    .slice(0, 5);
+
+  if (upcoming.length > 0) {
+    document.getElementById('card-deadlines').style.display = 'block';
+    document.getElementById('badge-deadlines').textContent = upcoming.length;
+    document.getElementById('deadline-list').innerHTML = upcoming.map(o => {
+      const d = daysUntil(o._d);
+      const label = d === 0 ? 'Сегодня!' : d === 1 ? 'Завтра' : `${d} дн.`;
+      const color = d <= 1 ? 'var(--red)' : d <= 3 ? 'var(--amber)' : 'var(--green)';
+      const dateStr = o._d.toLocaleDateString('ru-RU', {day:'2-digit',month:'2-digit'});
+      return `
+      <div class="deadline-row">
+        <div class="deadline-info">
+          <div class="deadline-name">№${o.num} ${o.client||''}</div>
+          <div class="deadline-date">${dateStr} · ${o.city||''}</div>
+        </div>
+        <span class="deadline-badge" style="background:${color}22;color:${color}">${label}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Orders list ──
+  document.getElementById('badge-orders').textContent = active.length;
+  const sorted = active.sort((a,b) => (+b.num||0) - (+a.num||0));
+  if (sorted.length === 0) {
+    document.getElementById('order-list').innerHTML = '<div class="empty">Нет активных заказов</div>';
+  } else {
+    document.getElementById('order-list').innerHTML = sorted.map(o => {
+      const info = stageInfo(o.stage);
+      const pp = pct(+o.paid||0, +o.sum||0);
+      const mp = +o.sum - (+o.paid||0);
+      return `
+      <div class="order-item">
+        <div class="order-top">
+          <div class="order-num">#${o.num}</div>
+          <div class="order-client">${o.client||'—'}</div>
+          <div class="order-city">${o.city||''}</div>
+          <span class="stage-chip" style="background:${info.bg};color:${info.color}">${String(o.stage||'').trim()}</span>
+        </div>
+        <div class="order-bottom">
+          <div class="order-stat">
+            <div class="order-stat-label">Сумма</div>
+            <div class="order-stat-val c-text">${fmt(o.sum,true)}</div>
+          </div>
+          <div class="order-stat">
+            <div class="order-stat-label">Оплачено ${pp}%</div>
+            <div class="order-stat-val c-green">${fmt(o.paid,true)}</div>
+          </div>
+          <div class="order-stat">
+            <div class="order-stat-label">Остаток</div>
+            <div class="order-stat-val ${mp>0?'c-accent':'c-green'}">${fmt(mp,true)}</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+// ─── BOOT ─────────────────────────────────────
+
+(function() {
+  const payload = getPayload();
+  if (payload) {
+    render(payload, false);
+  } else {
+    render(demoPayload(), true);
+  }
+})();
+</script>
+</body>
+</html>
